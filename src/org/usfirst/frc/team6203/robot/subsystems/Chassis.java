@@ -2,6 +2,7 @@ package org.usfirst.frc.team6203.robot.subsystems;
 
 import org.usfirst.frc.team6203.robot.OI;
 import org.usfirst.frc.team6203.robot.Robot;
+import org.usfirst.frc.team6203.robot.RobotMap;
 import org.usfirst.frc.team6203.robot.commands.Drive;
 
 import edu.wpi.first.wpilibj.Spark;
@@ -13,25 +14,24 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Chassis extends Subsystem {
 
-	public static Victor elv;
-
 	public static Victor leftFrontMotor, leftBackMotor, rightFrontMotor, rightBackMotor;
 
 	public static SpeedControllerGroup m_left, m_right;
 
 	public static DifferentialDrive drive;
 
+	
+	//Drive constants
 	private final double root2 = Math.sqrt(2);
 	private final double sin135 = root2 / 2;
 	private final double cos135 = -root2 / 2;
-	private final double slow_multiplier = 0.6;
 
 	public Chassis() {
 
-		leftFrontMotor = new Victor(0);
-		leftBackMotor = new Victor(1);
-		rightFrontMotor = new Victor(2);
-		rightBackMotor = new Victor(3);
+		leftFrontMotor = new Victor(RobotMap.leftMotorF);
+		leftBackMotor = new Victor(RobotMap.leftMotorB);
+		rightFrontMotor = new Victor(RobotMap.rightMotorF);
+		rightBackMotor = new Victor(RobotMap.rightMotorB);
 
 		m_left = new SpeedControllerGroup(leftFrontMotor, leftBackMotor);
 		m_right = new SpeedControllerGroup(rightFrontMotor, rightBackMotor);

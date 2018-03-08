@@ -1,6 +1,8 @@
 package org.usfirst.frc.team6203.robot.subsystems;
 
+import org.usfirst.frc.team6203.robot.Constants;
 import org.usfirst.frc.team6203.robot.Robot;
+import org.usfirst.frc.team6203.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Spark;
@@ -16,18 +18,19 @@ public class Elevator extends Subsystem {
 
 	// Put methods for controlling this subsystem
 	// here. Call these from Commands.
-	private Victor elv;
+	private Victor elevatorMotor;
 	public static DigitalInput DI_bottom, DI_switch, DI_scale, DI_top;
 	boolean b_bottom, b_switch, b_top, halt, preset_switch, preset_scale, move_switch, move_top;
-	final double fullspeed = 1;
-	final double preset_speed = .2;
+
 	int state = 0;
 
 	public Elevator() {
-		elv = new Victor(4);
-		DI_bottom = new DigitalInput(0);
-		DI_switch = new DigitalInput(1);
-		DI_top = new DigitalInput(2);
+		elevatorMotor = new Victor(RobotMap.elevatorMotor);
+
+		// Instantiate limit switches
+		DI_bottom = new DigitalInput(RobotMap.DI_bottom);
+		DI_switch = new DigitalInput(RobotMap.DI_switch);
+		DI_top = new DigitalInput(RobotMap.DI_top);
 	}
 
 	public void initDefaultCommand() {
@@ -50,20 +53,16 @@ public class Elevator extends Subsystem {
 
 		halt = Robot.oi.driverStick.getRawButton(11);
 
-		SmartDashboard.putBoolean("b_bottom", b_bottom);
-		SmartDashboard.putBoolean("b_switch", b_switch);
-		SmartDashboard.putBoolean("b_top", b_top);
-		SmartDashboard.putBoolean("preset_switch", preset_switch);
-		SmartDashboard.putBoolean("preset_scale", preset_scale);
+		publishValues();
 	}
 
 	public void drive() {
 		updateButtons();
 
 		if (b_switch)
-			if (elv.get() > 0)
+			if (elevatorMotor.get() > 0)
 				state = 1;
-			else if (elv.get() < 0)
+			else if (elevatorMotor.get() < 0)
 				state = 0;
 
 		if (!halt) {
@@ -71,18 +70,16 @@ public class Elevator extends Subsystem {
 				if (b_switch)
 					move_switch = false;
 				else if (state == 0)
-					elv.set(preset_speed);
+					elevatorMotor.set(Constants.m_ElevatorPresetSpeed);
 				else if (state == 1)
-					elv.set(-preset_speed);
-
+					elevatorMotor.set(-Constants.m_ElevatorPresetSpeed);
 				return;
 			}
 			if (move_top) {
 				if (b_top)
 					move_top = false;
 				else
-					elv.set(preset_speed);
-
+					elevatorMotor.set(Constants.m_ElevatorPresetSpeed);
 				return;
 			}
 		} else
@@ -96,6 +93,14 @@ public class Elevator extends Subsystem {
 		if (b_top && y > 0)
 			return;
 
-		elv.set(y);
+		elevatorMotor.set(y);
+	}
+
+	private void publishValues() {
+		SmartDashboard.putBoolean("b_bottom", b_bottom);
+		SmartDashboard.putBoolean("b_switch", b_switch);
+		SmartDashboard.putBoolean("b_top", b_top);
+		SmartDashboard.putBoolean("preset_switch", preset_switch);
+		SmartDashboard.putBoolean("preset_scale", preset_scale);
 	}
 }
