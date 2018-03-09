@@ -16,9 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Intake extends Subsystem {
 
-	final double fullspeed = .5;
-	final double full_drop_time = 1000; // ms
-
 	boolean drop = false;
 	double dropped_time = -1;
 
