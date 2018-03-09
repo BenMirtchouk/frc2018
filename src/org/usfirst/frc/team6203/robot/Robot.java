@@ -172,49 +172,58 @@ public class Robot extends IterativeRobot {
 		autoStart = System.currentTimeMillis();
 	}
 
-	/**
-	 * This function is called periodically during autonomous
-	 */
-	final double c_phase1 = 5000; //how long to move forward for in center (phase 1)
+	
+	//lr prefix means when the robot is on the left or right
+	//c prefix means when the robot is in the center
+	
+	//e after lr means when the robot is on the same side as the switch
+	//n after lr means when the robot is on a different side from the switch
+	
+	final double just_move_forward_phase1 = 5000; //how long to move forward for
+	final double just_move_forward_phase1_forwardSpeed = 0.5; //what speed to go forward at
 
-	final double lr_phase1 = 4000; //how long to move forward for in left or right (phase 1)
-	final double forwardSpeed = 0.5; //what speed to go forward at
+	final double lr_e_phase1 = 4000; //how long to move forward for
+	final double lr_e_phase1_forwardSpeed = 0.5; //what speed to go forward at
 
-	final double lr_phase2 = 2000; //how long to turn towards swing for in left or right (phase 2)
-	final double turnSpeed = 0.3; //what speed to turn at
+	final double lr_e_phase2 = 2000; //how long to turn towards swing for 
+	final double lr_e_phase2_turnSpeed = 0.3; //what speed to turn at
 
-	final double lr_phase3 = 1000; //how long to raise elevator for in left or right (phase 3)
-	final double raiseSpeed = 0.5; //what speed to raise elevator at
+	final double lr_e_phase3 = 1000; //how long to raise elevator for 
+	final double lr_e_phase3_raiseSpeed = 0.5; //what speed to raise elevator at
 
-	final double lr_phase4 = 500; //how long to eject from intake for in left or right (phase 4)
-	final double shootSpeed = 0.5; //what speed to eject from intake at
+	final double lr_e_phase4 = 500; //how long to eject from intake for
+	final double lr_e_phase4_shootSpeed = 0.5; //what speed to eject from intake at
 
 	public void autonomousPeriodic() {
 		double time = System.currentTimeMillis();
 
 		switch (robotPos) {
 		case 1: //center
-			if (time - autoStart < c_phase1)
-				drive.tankDrive(forwardSpeed, forwardSpeed);
+			if (time - autoStart < just_move_forward_phase1)
+				drive.tankDrive(just_move_forward_phase1_forwardSpeed, just_move_forward_phase1_forwardSpeed);
 			else drive.tankDrive(0, 0);
 
 			break;
 		case 0: //left
 		case 2: //right
-			if (switchPos == robotPos) {
-				if (time - autoStart < lr_phase1) {
-					drive.tankDrive(forwardSpeed, forwardSpeed);
-				} else if (time - autoStart - lr_phase1 < lr_phase2) {
-					drive.tankDrive((robotPos - 1) * -turnSpeed, (robotPos - 1) * -turnSpeed);
-				} else if (time - autoStart - lr_phase1 - lr_phase2 < lr_phase3) {
+			if (switchPos == robotPos) { //switch is on the same side as the robot
+				if (time - autoStart < lr_e_phase1) {
+					drive.tankDrive(lr_e_phase1_forwardSpeed, lr_e_phase1_forwardSpeed);
+				} else if (time - autoStart - lr_e_phase1 < lr_e_phase2) {
+					drive.tankDrive((robotPos - 1) * -lr_e_phase2_turnSpeed, (robotPos - 1) * -lr_e_phase2_turnSpeed);
+				} else if (time - autoStart - lr_e_phase1 - lr_e_phase2 < lr_e_phase3) {
 					drive.tankDrive(0, 0);
-					elevatorMotor.set(raiseSpeed);
-				} else if (time - autoStart - lr_phase1 - lr_phase2 - lr_phase3 < lr_phase4) {
+					elevatorMotor.set(lr_e_phase3_raiseSpeed);
+				} else if (time - autoStart - lr_e_phase1 - lr_e_phase2 - lr_e_phase3 < lr_e_phase4) {
 					elevatorMotor.set(0);
-					intake.setIntakeSpeed(shootSpeed);
+					intake.setIntakeSpeed(lr_e_phase4_shootSpeed);
 				} else {
 					intake.setIntakeSpeed(0);
 				}
+			}else{ //oh no
+				if (time - autoStart < just_move_forward_phase1)
+					drive.tankDrive(just_move_forward_phase1_forwardSpeed, just_move_forward_phase1_forwardSpeed);
+				else drive.tankDrive(0, 0);
 			}
 			break;
 
