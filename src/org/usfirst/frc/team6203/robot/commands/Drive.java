@@ -42,6 +42,7 @@ public class Drive extends Command {
 //		Robot.chassis.tankDrive();
 		Robot.chassis.arcadeDrive();
 		Robot.elevator.drive();
+		Robot.intake.drive();
 	}
 
 	// Make this return true when this Command no longer needs to run execute()

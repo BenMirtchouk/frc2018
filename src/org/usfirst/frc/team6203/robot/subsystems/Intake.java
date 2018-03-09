@@ -16,10 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Intake extends Subsystem {
 
-	private Spark m_intakeDropperMotor;
-	private Victor m_intakeMotorM;
-	private Victor m_intakeMotorS;
-
 	final double fullspeed = .5;
 	final double full_drop_time = 1000; // ms
 
@@ -27,9 +23,6 @@ public class Intake extends Subsystem {
 	double dropped_time = -1;
 
 	public Intake() {
-		m_intakeMotorM = new Victor(RobotMap.intakeMotorM);
-		m_intakeMotorS = new Victor(RobotMap.intakeMotorS); // invert?
-		m_intakeDropperMotor = new Spark(RobotMap.intakeDropperMotor);
 	}
 
 	public void initDefaultCommand() {
@@ -41,20 +34,20 @@ public class Intake extends Subsystem {
 	}
 
 	public void setIntakeSpeed(double speed) {
-		m_intakeMotorM.set(speed);
-		m_intakeMotorS.set(speed);
+		Robot.m_intakeMotorM.set(speed);
+		Robot.m_intakeMotorS.set(speed);
 	}
 
 	public void drive() {
 		double curr_time = System.currentTimeMillis();
 
-		if (curr_time - dropped_time > Constants.m_IntakeFullDropTime) m_intakeDropperMotor.set(0);
+		if (curr_time - dropped_time > Constants.m_IntakeFullDropTime) Robot.m_intakeDropperMotor.set(0);
 		else {
 			updateButtons();
 
 			if (dropped_time == -1 && drop) dropped_time = System.currentTimeMillis();
 
-			m_intakeDropperMotor.set(Constants.m_IntakeDropperMaxSpeed);
+			Robot.m_intakeDropperMotor.set(Constants.m_IntakeDropperMaxSpeed);
 		}
 
 		if (drop) setIntakeSpeed(0);

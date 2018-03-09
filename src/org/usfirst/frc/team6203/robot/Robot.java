@@ -8,10 +8,15 @@ import org.usfirst.frc.team6203.robot.subsystems.Elevator;
 import org.usfirst.frc.team6203.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -26,16 +31,30 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends IterativeRobot {
 
 	public static OI oi;
-	public static Chassis chassis;
 
 	public static CameraServer axisCam;
 	public static CameraServer usbCam;
 
-	public static Elevator elevator;
-	public static Intake intake;
 	public static ADIS16448_IMU imu;
 
 	public static DigitalOutput pong_l, pong_r;
+
+	//chassis
+	public static SpeedControllerGroup m_left, m_right;
+	public static DifferentialDrive drive;
+	public static Victor leftFrontMotor, leftBackMotor, rightFrontMotor, rightBackMotor;
+	public static Chassis chassis;
+
+	//intake
+	public static Spark m_intakeDropperMotor;
+	public static Victor m_intakeMotorM, m_intakeMotorS;
+	public static Intake intake;
+
+	//elevator
+	public static Victor elevatorMotor;
+	public static DigitalInput DI_bottom, DI_switch, DI_scale, DI_top;
+	public static Elevator elevator;
+
 	// public static Encoder encoder;
 
 	// public static Ultrasonic ultrasonic;
@@ -52,8 +71,38 @@ public class Robot extends IterativeRobot {
 
 		// Instantiate subsystems
 		oi = new OI();
-		chassis = new Chassis();
+		
+		//chassis
+		leftFrontMotor = new Victor(RobotMap.leftMotorF);
+		leftBackMotor = new Victor(RobotMap.leftMotorB);
+		rightFrontMotor = new Victor(RobotMap.rightMotorF);
+		rightBackMotor = new Victor(RobotMap.rightMotorB);
 
+		m_left = new SpeedControllerGroup(leftFrontMotor, leftBackMotor);
+		m_right = new SpeedControllerGroup(rightFrontMotor, rightBackMotor);
+
+		drive = new DifferentialDrive(m_left, m_right);
+		chassis = new Chassis();
+		
+		
+		//intake
+		m_intakeMotorM = new Victor(RobotMap.intakeMotorM);
+		m_intakeMotorS = new Victor(RobotMap.intakeMotorS); // invert?
+		m_intakeDropperMotor = new Spark(RobotMap.intakeDropperMotor);
+		intake = new Intake();
+		
+
+		//elevator
+		Robot.elevatorMotor = new Victor(RobotMap.elevatorMotor);
+
+		// Instantiate limit switches
+		DI_bottom = new DigitalInput(RobotMap.DI_bottom);
+		DI_switch = new DigitalInput(RobotMap.DI_switch);
+		DI_top = new DigitalInput(RobotMap.DI_top);
+		elevator = new Elevator();
+
+		//extra
+		
 		axisCam = CameraServer.getInstance();
 		axisCam.addAxisCamera("axis cam", Constants.IP);
 		axisCam.startAutomaticCapture();
@@ -62,18 +111,14 @@ public class Robot extends IterativeRobot {
 		usbCam.startAutomaticCapture();
 
 		imu = new ADIS16448_IMU();
+
 		// encoder = new Encoder(RobotMap.encoder_channelA,
 		// RobotMap.encoder_channelB);
-
-		elevator = new Elevator();
-		intake = new Intake();
-
+		
 		pong_l = new DigitalOutput(8);
 		pong_r = new DigitalOutput(9);
 
 		SmartDashboard.putData("Auto Routine", chooser);
-
-		// Drive.slow = false;
 	}
 
 	/**
@@ -129,8 +174,9 @@ public class Robot extends IterativeRobot {
 		// this line or comment it out.
 		if (autonomousCommand != null) autonomousCommand.cancel();
 
+		Drive drive_command = new Drive();
+		drive_command.start();
 		Drive.slow = false;
-
 	}
 
 	/**

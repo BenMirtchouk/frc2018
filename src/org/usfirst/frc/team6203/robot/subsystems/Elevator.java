@@ -18,19 +18,11 @@ public class Elevator extends Subsystem {
 
 	// Put methods for controlling this subsystem
 	// here. Call these from Commands.
-	private Victor elevatorMotor;
-	public static DigitalInput DI_bottom, DI_switch, DI_scale, DI_top;
 	boolean b_bottom, b_switch, b_top, halt, preset_switch, preset_scale, move_switch, move_top;
 
 	int state = 0;
 
 	public Elevator() {
-		elevatorMotor = new Victor(RobotMap.elevatorMotor);
-
-		// Instantiate limit switches
-		DI_bottom = new DigitalInput(RobotMap.DI_bottom);
-		DI_switch = new DigitalInput(RobotMap.DI_switch);
-		DI_top = new DigitalInput(RobotMap.DI_top);
 	}
 
 	public void initDefaultCommand() {
@@ -39,9 +31,9 @@ public class Elevator extends Subsystem {
 	}
 
 	private void updateButtons() {
-		b_bottom = !DI_bottom.get();
-		b_switch = !DI_switch.get();
-		b_top = !DI_top.get();
+		b_bottom = !Robot.DI_bottom.get();
+		b_switch = !Robot.DI_switch.get();
+		b_top = !Robot.DI_top.get();
 
 		preset_switch = Robot.oi.elevatorStick.getRawButton(1);
 		preset_scale = Robot.oi.elevatorStick.getRawButton(2);
@@ -60,9 +52,9 @@ public class Elevator extends Subsystem {
 		updateButtons();
 
 		if (b_switch)
-			if (elevatorMotor.get() > 0)
+			if (Robot.elevatorMotor.get() > 0)
 				state = 1;
-			else if (elevatorMotor.get() < 0)
+			else if (Robot.elevatorMotor.get() < 0)
 				state = 0;
 
 		if (!halt) {
@@ -70,16 +62,16 @@ public class Elevator extends Subsystem {
 				if (b_switch)
 					move_switch = false;
 				else if (state == 0)
-					elevatorMotor.set(Constants.m_ElevatorPresetSpeed);
+					Robot.elevatorMotor.set(Constants.m_ElevatorPresetSpeed);
 				else if (state == 1)
-					elevatorMotor.set(-Constants.m_ElevatorPresetSpeed);
+					Robot.elevatorMotor.set(-Constants.m_ElevatorPresetSpeed);
 				return;
 			}
 			if (move_top) {
 				if (b_top)
 					move_top = false;
 				else
-					elevatorMotor.set(Constants.m_ElevatorPresetSpeed);
+					Robot.elevatorMotor.set(Constants.m_ElevatorPresetSpeed);
 				return;
 			}
 		} else
@@ -93,7 +85,7 @@ public class Elevator extends Subsystem {
 		if (b_top && y > 0)
 			return;
 
-		elevatorMotor.set(y);
+		Robot.elevatorMotor.set(y);
 	}
 
 	private void publishValues() {
