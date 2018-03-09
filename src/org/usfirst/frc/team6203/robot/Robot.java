@@ -172,27 +172,34 @@ public class Robot extends IterativeRobot {
 		autoStart = System.currentTimeMillis();
 	}
 
-	
-	//lr prefix means when the robot is on the left or right
+	//lr prefix means when the robot is on the left/right (these are mirrors so are handled similarly)
 	//c prefix means when the robot is in the center
-	
+
 	//e after lr means when the robot is on the same side as the switch
 	//n after lr means when the robot is on a different side from the switch
-	
+
+	final double shootSpeed = 0.5; //what speed to eject from intake at
+	final double raiseSpeed = 0.5; //what speed to raise elevator at
+
 	final double just_move_forward_phase1 = 5000; //how long to move forward for
 	final double just_move_forward_phase1_forwardSpeed = 0.5; //what speed to go forward at
 
 	final double lr_e_phase1 = 4000; //how long to move forward for
 	final double lr_e_phase1_forwardSpeed = 0.5; //what speed to go forward at
 
-	final double lr_e_phase2 = 2000; //how long to turn towards swing for 
-	final double lr_e_phase2_turnSpeed = 0.3; //what speed to turn at
+	final double lr_e_phase2 = 1000; //how long to raise elevator for 
 
-	final double lr_e_phase3 = 1000; //how long to raise elevator for 
-	final double lr_e_phase3_raiseSpeed = 0.5; //what speed to raise elevator at
+	final double lr_e_phase3 = 500; //how long to eject from intake for
 
-	final double lr_e_phase4 = 500; //how long to eject from intake for
-	final double lr_e_phase4_shootSpeed = 0.5; //what speed to eject from intake at
+	final double lr_n_phase1 = 2500; //how long to move to other side
+	final double lr_n_phase1_slowWheel_Speed = 0.3; //what speed to do this tilt at (slow wheel)
+	final double lr_n_phase1_fastWheel_Speed = 0.5; //what speed to do this tilt at (fast wheel)
+
+	final double lr_n_phase2 = 2500; //how long to move tilted to correct angle
+
+	final double lr_n_phase3 = 1000; //how long to raise elevator for 
+
+	final double lr_n_phase4 = 500; //how long to eject from intake for
 
 	public void autonomousPeriodic() {
 		double time = System.currentTimeMillis();
@@ -209,21 +216,45 @@ public class Robot extends IterativeRobot {
 			if (switchPos == robotPos) { //switch is on the same side as the robot
 				if (time - autoStart < lr_e_phase1) {
 					drive.tankDrive(lr_e_phase1_forwardSpeed, lr_e_phase1_forwardSpeed);
-				} else if (time - autoStart - lr_e_phase1 < lr_e_phase2) {
-					drive.tankDrive((robotPos - 1) * -lr_e_phase2_turnSpeed, (robotPos - 1) * -lr_e_phase2_turnSpeed);
-				} else if (time - autoStart - lr_e_phase1 - lr_e_phase2 < lr_e_phase3) {
+
+					if (time - autoStart < lr_e_phase2) {
+						elevatorMotor.set(raiseSpeed);
+					} else {
+						elevatorMotor.set(0);
+					}
+				} else if (time - autoStart - lr_e_phase1 < lr_e_phase3) {
 					drive.tankDrive(0, 0);
-					elevatorMotor.set(lr_e_phase3_raiseSpeed);
-				} else if (time - autoStart - lr_e_phase1 - lr_e_phase2 - lr_e_phase3 < lr_e_phase4) {
-					elevatorMotor.set(0);
-					intake.setIntakeSpeed(lr_e_phase4_shootSpeed);
+					intake.setIntakeSpeed(shootSpeed);
 				} else {
 					intake.setIntakeSpeed(0);
 				}
-			}else{ //oh no
-				if (time - autoStart < just_move_forward_phase1)
-					drive.tankDrive(just_move_forward_phase1_forwardSpeed, just_move_forward_phase1_forwardSpeed);
-				else drive.tankDrive(0, 0);
+			} else { //oh no
+				if (time - autoStart < lr_n_phase1) {
+					if (robotPos == 0) {
+						drive.tankDrive(lr_n_phase1_fastWheel_Speed, lr_n_phase1_slowWheel_Speed);
+					} else {
+						drive.tankDrive(lr_n_phase1_slowWheel_Speed, lr_n_phase1_fastWheel_Speed);
+					}
+					
+					
+					if (time - autoStart < lr_n_phase3) {
+						elevatorMotor.set(raiseSpeed);
+					} else {
+						elevatorMotor.set(0);
+					}
+				} else if (time - autoStart - lr_n_phase1 < lr_n_phase2) {
+					if (robotPos == 2) {
+						drive.tankDrive(lr_n_phase1_fastWheel_Speed, lr_n_phase1_slowWheel_Speed);
+					} else {
+						drive.tankDrive(lr_n_phase1_slowWheel_Speed, lr_n_phase1_fastWheel_Speed);
+					}
+
+				} else if (time - autoStart - lr_n_phase1 - lr_n_phase2 < lr_n_phase3) {
+					drive.tankDrive(0, 0);
+					intake.setIntakeSpeed(shootSpeed);
+				} else {
+					intake.setIntakeSpeed(0);
+				}
 			}
 			break;
 
