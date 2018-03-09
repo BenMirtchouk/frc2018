@@ -10,6 +10,7 @@ import org.usfirst.frc.team6203.robot.subsystems.Intake;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
@@ -59,8 +60,9 @@ public class Robot extends IterativeRobot {
 
 	// public static Ultrasonic ultrasonic;
 
-	Command autonomousCommand;
-	SendableChooser<Command> chooser = new SendableChooser<>();
+	int robotPos;
+	SendableChooser<Integer> chooser;
+	int switchPos;
 
 	/**
 	 * This function is run when the robot is first started up and should be used
@@ -71,7 +73,7 @@ public class Robot extends IterativeRobot {
 
 		// Instantiate subsystems
 		oi = new OI();
-		
+
 		//chassis
 		leftFrontMotor = new Victor(RobotMap.leftMotorF);
 		leftBackMotor = new Victor(RobotMap.leftMotorB);
@@ -83,17 +85,15 @@ public class Robot extends IterativeRobot {
 
 		drive = new DifferentialDrive(m_left, m_right);
 		chassis = new Chassis();
-		
-		
+
 		//intake
 		m_intakeMotorM = new Victor(RobotMap.intakeMotorM);
 		m_intakeMotorS = new Victor(RobotMap.intakeMotorS); // invert?
 		m_intakeDropperMotor = new Spark(RobotMap.intakeDropperMotor);
 		intake = new Intake();
-		
 
 		//elevator
-		Robot.elevatorMotor = new Victor(RobotMap.elevatorMotor);
+		elevatorMotor = new Victor(RobotMap.elevatorMotor);
 
 		// Instantiate limit switches
 		DI_bottom = new DigitalInput(RobotMap.DI_bottom);
@@ -102,7 +102,7 @@ public class Robot extends IterativeRobot {
 		elevator = new Elevator();
 
 		//extra
-		
+
 		axisCam = CameraServer.getInstance();
 		axisCam.addAxisCamera("axis cam", Constants.IP);
 		axisCam.startAutomaticCapture();
@@ -114,11 +114,15 @@ public class Robot extends IterativeRobot {
 
 		// encoder = new Encoder(RobotMap.encoder_channelA,
 		// RobotMap.encoder_channelB);
-		
+
 		pong_l = new DigitalOutput(8);
 		pong_r = new DigitalOutput(9);
 
-		SmartDashboard.putData("Auto Routine", chooser);
+		chooser = new SendableChooser<Integer>();
+		chooser.addDefault("middle", 1);
+		chooser.addObject("left", 0);
+		chooser.addObject("right", 2);
+		SmartDashboard.putData("Autonomous Selector", chooser);
 	}
 
 	/**
@@ -150,30 +154,76 @@ public class Robot extends IterativeRobot {
 	 * chooser code above (like the commented example) or additional comparisons
 	 * to the switch structure below with additional strings & commands.
 	 */
-	@Override
-	public void autonomousInit() {
-		autonomousCommand = chooser.getSelected();
+	double autoStart;
 
-		// schedule the autonomous command (example)
-		if (autonomousCommand != null) autonomousCommand.start();
+	public void autonomousInit() {
+		robotPos = chooser.getSelected();
+		double start = System.currentTimeMillis();
+
+		String gameData;
+		do
+			gameData = DriverStation.getInstance().getGameSpecificMessage();
+		while (gameData.length() == 0 && System.currentTimeMillis() - start < 2000); //keep going until we get data or give up at 2 sec
+
+		if (gameData.length() == 0)
+			gameData = "L welp lets take a guess fellas";
+
+		switchPos = gameData.charAt(0) == 'L' ? 0 : 2;
+		autoStart = System.currentTimeMillis();
 	}
 
 	/**
 	 * This function is called periodically during autonomous
 	 */
-	@Override
+	final double c_phase1 = 5000; //how long to move forward for in center (phase 1)
+
+	final double lr_phase1 = 4000; //how long to move forward for in left or right (phase 1)
+	final double forwardSpeed = 0.5; //what speed to go forward at
+
+	final double lr_phase2 = 2000; //how long to turn towards swing for in left or right (phase 2)
+	final double turnSpeed = 0.3; //what speed to turn at
+
+	final double lr_phase3 = 1000; //how long to raise elevator for in left or right (phase 3)
+	final double raiseSpeed = 0.5; //what speed to raise elevator at
+
+	final double lr_phase4 = 500; //how long to eject from intake for in left or right (phase 4)
+	final double shootSpeed = 0.5; //what speed to eject from intake at
+
 	public void autonomousPeriodic() {
-		Scheduler.getInstance().run();
+		double time = System.currentTimeMillis();
+
+		switch (robotPos) {
+		case 1: //center
+			if (time - autoStart < c_phase1)
+				drive.tankDrive(forwardSpeed, forwardSpeed);
+			else drive.tankDrive(0, 0);
+
+			break;
+		case 0: //left
+		case 2: //right
+			if (switchPos == robotPos) {
+				if (time - autoStart < lr_phase1) {
+					drive.tankDrive(forwardSpeed, forwardSpeed);
+				} else if (time - autoStart - lr_phase1 < lr_phase2) {
+					drive.tankDrive((robotPos - 1) * -turnSpeed, (robotPos - 1) * -turnSpeed);
+				} else if (time - autoStart - lr_phase1 - lr_phase2 < lr_phase3) {
+					drive.tankDrive(0, 0);
+					elevatorMotor.set(raiseSpeed);
+				} else if (time - autoStart - lr_phase1 - lr_phase2 - lr_phase3 < lr_phase4) {
+					elevatorMotor.set(0);
+					intake.setIntakeSpeed(shootSpeed);
+				} else {
+					intake.setIntakeSpeed(0);
+				}
+			}
+			break;
+
+		}
+
 	}
 
 	@Override
 	public void teleopInit() {
-		// This makes sure that the autonomous stops running when
-		// teleop starts running. If you want the autonomous to
-		// continue until interrupted by another command, remove
-		// this line or comment it out.
-		if (autonomousCommand != null) autonomousCommand.cancel();
-
 		Drive drive_command = new Drive();
 		drive_command.start();
 		Drive.slow = false;
