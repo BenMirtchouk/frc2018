@@ -119,8 +119,8 @@ public class Robot extends IterativeRobot {
 		pong_r = new DigitalOutput(9);
 
 		chooser = new SendableChooser<Integer>();
-		chooser.addDefault("middle", 1);
 		chooser.addObject("left", 0);
+		chooser.addDefault("middle", 1);
 		chooser.addObject("right", 2);
 		SmartDashboard.putData("Autonomous Selector", chooser);
 	}
@@ -157,7 +157,10 @@ public class Robot extends IterativeRobot {
 	double autoStart;
 
 	public void autonomousInit() {
-		robotPos = chooser.getSelected();
+		//robotPos = chooser.getSelected();
+		
+		//Read location from DS
+		robotPos = DriverStation.getInstance().getLocation() - 1;
 		double start = System.currentTimeMillis();
 
 		String gameData;
@@ -178,7 +181,7 @@ public class Robot extends IterativeRobot {
 	//e after lr means when the robot is on the same side as the switch
 	//n after lr means when the robot is on a different side from the switch
 
-	final double shootSpeed = 0.5; //what speed to eject from intake at
+	final double shootSpeed = 0.6; //what speed to eject from intake at
 	final double raiseSpeed = 0.5; //what speed to raise elevator at
 	final double raiseTime = 1000; //how long to eject from intake for
 	final double ejectTime = 500; //how long to eject from intake for
