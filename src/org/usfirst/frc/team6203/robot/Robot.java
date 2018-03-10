@@ -242,7 +242,7 @@ public class Robot extends IterativeRobot {
 
 			} else if (time - autoStart - c_phase1 - c_phase2 < ejectTime) {
 				drive.tankDrive(0, 0);
-				intake.setIntakeSpeed(shootSpeed);
+				intake.setIntakeSpeed(-shootSpeed);
 			} else {
 				intake.setIntakeSpeed(0);
 			}
@@ -261,7 +261,7 @@ public class Robot extends IterativeRobot {
 					}
 				} else if (time - autoStart - lr_e_phase1 < ejectTime) {
 					drive.tankDrive(0, 0);
-					intake.setIntakeSpeed(shootSpeed);
+					intake.setIntakeSpeed(-shootSpeed);
 				} else {
 					intake.setIntakeSpeed(0);
 				}
@@ -288,7 +288,7 @@ public class Robot extends IterativeRobot {
 
 				} else if (time - autoStart - lr_n_phase1 - lr_n_phase2 < ejectTime) {
 					drive.tankDrive(0, 0);
-					intake.setIntakeSpeed(shootSpeed);
+					intake.setIntakeSpeed(-shootSpeed);
 				} else {
 					intake.setIntakeSpeed(0);
 				}
