@@ -11,7 +11,7 @@ public class Constants {
 	public static final double m_ElevatorPresetSpeed = .2;
 
 	//Intake
-	public static final double m_IntakeMaxSpeed = 0.35;
+	public static final double m_IntakeMaxSpeed = 0.8;
 	public static final double m_IntakeDropperMaxSpeed = .5;
 	public static final double m_IntakeFullDropTime = 1000; // ms
 }
