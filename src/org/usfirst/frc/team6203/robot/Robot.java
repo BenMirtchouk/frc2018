@@ -38,7 +38,7 @@ public class Robot extends IterativeRobot {
 
 	public static ADIS16448_IMU imu;
 
-	public static DigitalOutput pong_l, pong_r;
+	public static DigitalOutput arduino1, arduino2;
 
 	//chassis
 	public static SpeedControllerGroup m_left, m_right;
@@ -115,8 +115,8 @@ public class Robot extends IterativeRobot {
 		// encoder = new Encoder(RobotMap.encoder_channelA,
 		// RobotMap.encoder_channelB);
 
-		pong_l = new DigitalOutput(8);
-		pong_r = new DigitalOutput(9);
+		arduino1 = new DigitalOutput(8);
+		arduino2 = new DigitalOutput(9);
 
 		chooser = new SendableChooser<Integer>();
 		chooser.addObject("left", 0);
@@ -137,8 +137,6 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void disabledPeriodic() {
-		pong_l.set(Robot.oi.elevatorStick.getX() > .5);
-		pong_r.set(Robot.oi.elevatorStick.getX() < -.5);
 
 		Scheduler.getInstance().run();
 	}
@@ -209,6 +207,7 @@ public class Robot extends IterativeRobot {
 
 
 	boolean JUSTCROSSBASELINE = false;
+	
 	public void autonomousPeriodic() {
 		double time = System.currentTimeMillis();
 		
@@ -312,8 +311,8 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		pong_l.set(Robot.oi.elevatorStick.getX() > .5);
-		pong_r.set(Robot.oi.elevatorStick.getX() < -.5);
+		arduino1.set(Robot.oi.elevatorStick.getRawButton(1));
+		arduino2.set(Robot.oi.elevatorStick.getRawButton(3));
 
 		Scheduler.getInstance().run();
 	}

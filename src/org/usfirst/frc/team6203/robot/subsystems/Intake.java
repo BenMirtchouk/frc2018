@@ -30,29 +30,40 @@ public class Intake extends Subsystem {
 	}
 
 	private void updateButtons() {
-		drop = drop || Robot.oi.elevatorStick.getRawButton(3);
+		drop = drop || Robot.oi.elevatorStick.getRawButton(5);
 	}
 
 	public void setIntakeSpeed(double speed) {
-		Robot.m_intakeMotorM.set(speed);
+		Robot.m_intakeMotorM.set(-speed);
 		Robot.m_intakeMotorS.set(speed);
 	}
 
 	public void drive() {
 		double curr_time = System.currentTimeMillis();
 
-		if (curr_time - dropped_time > Constants.m_IntakeFullDropTime) Robot.m_intakeDropperMotor.set(0);
+		SmartDashboard.putNumber("curr_time", curr_time);
+		SmartDashboard.putNumber("dropped_time", dropped_time);
+		SmartDashboard.putBoolean("drop", drop);
+		
+		if (curr_time - dropped_time > Constants.m_IntakeFullDropTime && dropped_time != -1)
+			Robot.m_intakeDropperMotor.set(0);
 		else {
 			updateButtons();
 
-			if (dropped_time == -1 && drop) dropped_time = System.currentTimeMillis();
+			if (dropped_time == -1 && drop)
+				dropped_time = System.currentTimeMillis();
 
-			Robot.m_intakeDropperMotor.set(Constants.m_IntakeDropperMaxSpeed);
+			SmartDashboard.putString("dropping", "yes" + (curr_time - dropped_time));
+			if (drop)
+				Robot.m_intakeDropperMotor.set(-0.8);
 		}
 
-		if (drop) setIntakeSpeed(0);
-		else if (Robot.oi.driverStick.getRawButton(4)) setIntakeSpeed(Constants.m_IntakeMaxSpeed);
-		else if (Robot.oi.driverStick.getRawButton(5)) setIntakeSpeed(-Constants.m_IntakeMaxSpeed);
+		if (drop)
+			setIntakeSpeed(0);
+				else if (Robot.oi.driverStick.getRawButton(4)) setIntakeSpeed(Constants.m_IntakeMaxSpeed);
+				else if (Robot.oi.driverStick.getRawButton(6)) setIntakeSpeed(-Constants.m_IntakeMaxSpeed);
+				else 
+					setIntakeSpeed(0);
 
 	}
 }

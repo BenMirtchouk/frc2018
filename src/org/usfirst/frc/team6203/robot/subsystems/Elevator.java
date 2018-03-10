@@ -35,8 +35,8 @@ public class Elevator extends Subsystem {
 		b_switch = !Robot.DI_switch.get();
 		b_top = !Robot.DI_top.get();
 
-		preset_switch = Robot.oi.elevatorStick.getRawButton(1);
-		preset_scale = Robot.oi.elevatorStick.getRawButton(2);
+		preset_switch = Robot.oi.elevatorStick.getRawButton(2);
+		preset_scale = Robot.oi.elevatorStick.getRawButton(4);
 
 		if (!move_switch && preset_switch)
 			move_switch = true;
@@ -77,15 +77,17 @@ public class Elevator extends Subsystem {
 		} else
 			move_switch = move_top = false;
 
-		double y = Robot.oi.elevatorStick.getY();
-		SmartDashboard.putNumber("y val", y);
+		double x = Robot.oi.elevatorStick.getX();
+		SmartDashboard.putNumber("x val", x);
 
-		if (b_bottom && y < 0)
+		publishValues();
+		
+		if (b_bottom && x < 0)
 			return;
-		if (b_top && y > 0)
+		if (b_top && x > 0)
 			return;
 
-		Robot.elevatorMotor.set(y);
+		Robot.elevatorMotor.set(x);
 	}
 
 	private void publishValues() {
