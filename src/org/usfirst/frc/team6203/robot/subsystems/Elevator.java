@@ -31,12 +31,12 @@ public class Elevator extends Subsystem {
 	}
 
 	private void updateButtons() {
-		b_bottom = !Robot.DI_bottom.get();
+		b_bottom = !Robot.DI_bottom.get(); //hall effect sensors probs
 		b_switch = !Robot.DI_switch.get();
 		b_top = !Robot.DI_top.get();
 
-		preset_switch = Robot.oi.elevatorStick.getRawButton(2);
-		preset_scale = Robot.oi.elevatorStick.getRawButton(4);
+//		preset_switch = Robot.oi.elevatorStick.getRawButton(2);
+//		preset_scale = Robot.oi.elevatorStick.getRawButton(4);
 
 		if (!move_switch && preset_switch)
 			move_switch = true;

@@ -8,7 +8,7 @@ public class Constants {
 	
 	//Elevator
 	public static final double m_ElevatorMaxSpeed = 1.0;
-	public static final double m_ElevatorPresetSpeed = .2;
+	public static final double m_ElevatorPresetSpeed = .45;
 
 	//Intake
 	public static final double m_IntakeMaxSpeed = 0.8;

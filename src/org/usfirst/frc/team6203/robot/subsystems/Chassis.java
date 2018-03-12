@@ -26,13 +26,13 @@ public class Chassis extends Subsystem {
 	public void initDefaultCommand() {
 	}
 
-	public void tankDrive(double a, double b) {
+	public void tankDrive(double a, double b) { //TAKE OUT 0.5 LATER
 		SmartDashboard.putString("type", "tank");
 		
-		SmartDashboard.putNumber("axisY1", a);
-		SmartDashboard.putNumber("axisY2", b);
+		SmartDashboard.putNumber("axisY1", a*0.5);
+		SmartDashboard.putNumber("axisY2", b*0.5);
 
-		Robot.drive.tankDrive(a, b);
+		Robot.drive.tankDrive(a*0.5, b*0.5);
 	}
 
 	public void arcadeDrive() {
@@ -51,10 +51,10 @@ public class Chassis extends Subsystem {
 		//drive.arcadeDrive((a + b) / (Drive.slow ? 2 : 1), (a - b) / (Drive.slow ? 2 : 1));
 
 		// test 1 - correct way to do single joystick driving
-		Robot.drive.tankDrive(yspeed + xspeed, yspeed - xspeed);
+//		Robot.drive.tankDrive(yspeed + xspeed, yspeed - xspeed);
 
 		// test 2 - scaling may be needed
-		//drive.tankDrive((yspeed + xspeed) / 2, (yspeed - xspeed) / 2);
+		Robot.drive.tankDrive((yspeed + xspeed) / 1.5, (yspeed - xspeed) / 1.5);
 	}
 
 }

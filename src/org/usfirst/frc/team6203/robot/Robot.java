@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Victor;
-import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
@@ -38,20 +38,20 @@ public class Robot extends IterativeRobot {
 
 	public static ADIS16448_IMU imu;
 
-	public static DigitalOutput arduino1, arduino2;
+	public static DigitalOutput arduino1, arduino2, arduino3, arduino4;
 
-	//chassis
+	// chassis
 	public static SpeedControllerGroup m_left, m_right;
 	public static DifferentialDrive drive;
 	public static Victor leftFrontMotor, leftBackMotor, rightFrontMotor, rightBackMotor;
 	public static Chassis chassis;
 
-	//intake
+	// intake
 	public static Spark m_intakeDropperMotor;
 	public static Victor m_intakeMotorM, m_intakeMotorS;
 	public static Intake intake;
 
-	//elevator
+	// elevator
 	public static Victor elevatorMotor;
 	public static DigitalInput DI_bottom, DI_switch, DI_scale, DI_top;
 	public static Elevator elevator;
@@ -74,7 +74,7 @@ public class Robot extends IterativeRobot {
 		// Instantiate subsystems
 		oi = new OI();
 
-		//chassis
+		// chassis
 		leftFrontMotor = new Victor(RobotMap.leftMotorF);
 		leftBackMotor = new Victor(RobotMap.leftMotorB);
 		rightFrontMotor = new Victor(RobotMap.rightMotorF);
@@ -86,13 +86,13 @@ public class Robot extends IterativeRobot {
 		drive = new DifferentialDrive(m_left, m_right);
 		chassis = new Chassis();
 
-		//intake
+		// intake
 		m_intakeMotorM = new Victor(RobotMap.intakeMotorM);
 		m_intakeMotorS = new Victor(RobotMap.intakeMotorS); // invert?
 		m_intakeDropperMotor = new Spark(RobotMap.intakeDropperMotor);
 		intake = new Intake();
 
-		//elevator
+		// elevator
 		elevatorMotor = new Victor(RobotMap.elevatorMotor);
 
 		// Instantiate limit switches
@@ -101,11 +101,11 @@ public class Robot extends IterativeRobot {
 		DI_top = new DigitalInput(RobotMap.DI_top);
 		elevator = new Elevator();
 
-		//extra
+		// extra
 
-		axisCam = CameraServer.getInstance();
-		axisCam.addAxisCamera("axis cam", Constants.IP);
-		axisCam.startAutomaticCapture();
+		// axisCam = CameraServer.getInstance();
+		// axisCam.addAxisCamera("axis cam", Constants.IP);
+		// axisCam.startAutomaticCapture();
 
 		usbCam = CameraServer.getInstance();
 		usbCam.startAutomaticCapture();
@@ -117,6 +117,8 @@ public class Robot extends IterativeRobot {
 
 		arduino1 = new DigitalOutput(8);
 		arduino2 = new DigitalOutput(9);
+		arduino3 = new DigitalOutput(6);
+		arduino4 = new DigitalOutput(7);
 
 		chooser = new SendableChooser<Integer>();
 		chooser.addObject("left", 0);
@@ -130,9 +132,16 @@ public class Robot extends IterativeRobot {
 	 * can use it to reset any subsystem information you want to clear when the
 	 * robot is disabled.
 	 */
-	@Override
-	public void disabledInit() {
+	boolean fdisable = false;
 
+	public void disabledInit() {
+		if (fdisable) {
+			arduino3.set(true);
+			arduino4.set(false);
+		} else {
+			arduino3.set(false);
+			arduino4.set(false);
+		}
 	}
 
 	@Override
@@ -143,176 +152,121 @@ public class Robot extends IterativeRobot {
 
 	/**
 	 * This autonomous (along with the chooser code above) shows how to select
-	 * between different autonomous modes using the dashboard. The sendable
-	 * chooser code works with the Java SmartDashboard. If you prefer the LabVIEW
-	 * Dashboard, remove all of the chooser code and uncomment the getString code
-	 * to get the auto name from the text box below the Gyro
+	 * between different autonomous modes using the dashboard. The sendable chooser
+	 * code works with the Java SmartDashboard. If you prefer the LabVIEW Dashboard,
+	 * remove all of the chooser code and uncomment the getString code to get the
+	 * auto name from the text box below the Gyro
 	 *
 	 * You can add additional auto modes by adding additional commands to the
-	 * chooser code above (like the commented example) or additional comparisons
-	 * to the switch structure below with additional strings & commands.
+	 * chooser code above (like the commented example) or additional comparisons to
+	 * the switch structure below with additional strings & commands.
 	 */
 	double autoStart;
+	Timer autoTimer;
+
+	boolean first;
 
 	public void autonomousInit() {
-		//robotPos = chooser.getSelected();
-		
-		//Read location from DS
-		robotPos = DriverStation.getInstance().getLocation() - 1;
+
+		arduino3.set(true);
+		arduino4.set(true);
+		// robotPos = chooser.getSelected();
+
+		// Read location from DS
+		// robotPos = DriverStation.getInstance().getLocation() - 1;
+		robotPos = 2;
 		double start = System.currentTimeMillis();
 
 		String gameData;
 		do
 			gameData = DriverStation.getInstance().getGameSpecificMessage();
-		while (gameData.length() == 0 && System.currentTimeMillis() - start < 2000); //keep going until we get data or give up at 2 sec
+		while (gameData.length() == 0 && System.currentTimeMillis() - start < 2000); // keep going until we get data or
+																						// give up at 2 sec
 
 		if (gameData.length() == 0)
 			gameData = "L welp lets take a guess fellas";
 
-		switchPos = gameData.charAt(0) == 'L' ? 0 : 2;
+		switchPos = gameData.charAt(0) == 'L' ? 2 : 0;
 		autoStart = System.currentTimeMillis();
+
+		autoTimer = new Timer();
+		System.out.println("switchPos: " + switchPos);
+		System.out.println("robotPos: " + robotPos);
+		first = true;
 	}
 
-	//lr prefix means when the robot is on the left/right (these are mirrors so are handled similarly)
-	//c prefix means when the robot is in the center
-
-	//e after lr means when the robot is on the same side as the switch
-	//n after lr means when the robot is on a different side from the switch
-
-	final double shootSpeed = 0.6; //what speed to eject from intake at
-	final double raiseSpeed = 0.5; //what speed to raise elevator at
-	final double raiseTime = 1000; //how long to eject from intake for
-	final double ejectTime = 500; //how long to eject from intake for
-
-	final double just_move_forward_phase1 = 5000; //how long to move forward for
-	final double just_move_forward_phase1_forwardSpeed = 0.5; //what speed to go forward at
-
-	
-	final double lr_e_phase1 = 4000; //how long to move forward for
-	final double lr_e_phase1_forwardSpeed = 0.5; //what speed to go forward at 
-
-	
-	final double lr_n_phase1 = 2500; //how long to move to other side
-	final double lr_n_phase1_slowWheel_Speed = 0.3; //what speed to do this tilt at (slow wheel)
-	final double lr_n_phase1_fastWheel_Speed = 0.5; //what speed to do this tilt at (fast wheel)
-
-	final double lr_n_phase2 = 2500; //how long to move tilted to correct angle
-	
-	
-	final double c_phase1 = 2500; //how long to move to switch side
-	final double c_phase1_slowWheel_Speed = 0.4; //what speed to do this tilt at (slow wheel)
-	final double c_phase1_fastWheel_Speed = 0.5; //what speed to do this tilt at (fast wheel)
-	
-	final double c_phase2 = 2500; //adjust back to face switch
-
-
-	boolean JUSTCROSSBASELINE = false;
-	
 	public void autonomousPeriodic() {
-		double time = System.currentTimeMillis();
-		
-		if (JUSTCROSSBASELINE){
-			if (time - autoStart < just_move_forward_phase1)
-				drive.tankDrive(just_move_forward_phase1_forwardSpeed, just_move_forward_phase1_forwardSpeed);
-			else drive.tankDrive(0, 0);
-			return;
+		arduino3.set(true);
+		arduino4.set(true);
+
+		if (first) {
+			autoTimer.start();
+			first = false;
 		}
+		
+		if (switchPos == robotPos) { // switch is on the same side as the robot
+			if (autoTimer.get() < 2-.3) {
 
-		switch (robotPos) {
-		case 1: //center
-			if (time - autoStart < c_phase1) {
-				if (switchPos == 2) {
-					drive.tankDrive(lr_n_phase1_fastWheel_Speed, lr_n_phase1_slowWheel_Speed);
+				if (autoTimer.get() < .5) {
+					intake.setIntakeSpeed(.5);
 				} else {
-					drive.tankDrive(lr_n_phase1_slowWheel_Speed, lr_n_phase1_fastWheel_Speed);
-				}
-				
-				
-				if (time - autoStart < raiseTime) {
-					elevatorMotor.set(raiseSpeed);
-				} else {
-					elevatorMotor.set(0);
-				}
-			} else if (time - autoStart - c_phase1 < c_phase2) {
-				if (switchPos == 0) {
-					drive.tankDrive(lr_n_phase1_fastWheel_Speed, lr_n_phase1_slowWheel_Speed);
-				} else {
-					drive.tankDrive(lr_n_phase1_slowWheel_Speed, lr_n_phase1_fastWheel_Speed);
+					intake.setIntakeSpeed(0);
 				}
 
-			} else if (time - autoStart - c_phase1 - c_phase2 < ejectTime) {
+				drive.tankDrive(-.8, -.75);
+			} else if (autoTimer.get() < 5-.3) {
+				elevatorMotor.set(.5);
+			} else if (autoTimer.get() < 6-.3) {
+				elevatorMotor.set(0);
+				drive.tankDrive(.8, -.8);
+			} else if (autoTimer.get() < 8-.3) {
+				drive.tankDrive(-.4, -.4);
+			} else if (autoTimer.get() < 9-.3) {
 				drive.tankDrive(0, 0);
-				intake.setIntakeSpeed(-shootSpeed);
+				intake.setIntakeSpeed(-.8);
 			} else {
 				intake.setIntakeSpeed(0);
 			}
 
-			break;
-		case 0: //left
-		case 2: //right
-			if (switchPos == robotPos) { //switch is on the same side as the robot
-				if (time - autoStart < lr_e_phase1) {
-					drive.tankDrive(lr_e_phase1_forwardSpeed, lr_e_phase1_forwardSpeed);
-
-					if (time - autoStart < raiseTime) {
-						elevatorMotor.set(raiseSpeed);
-					} else {
-						elevatorMotor.set(0);
-					}
-				} else if (time - autoStart - lr_e_phase1 < ejectTime) {
-					drive.tankDrive(0, 0);
-					intake.setIntakeSpeed(-shootSpeed);
-				} else {
-					intake.setIntakeSpeed(0);
-				}
-			} else { //oh no
-				if (time - autoStart < lr_n_phase1) {
-					if (robotPos == 0) {
-						drive.tankDrive(lr_n_phase1_fastWheel_Speed, lr_n_phase1_slowWheel_Speed);
-					} else {
-						drive.tankDrive(lr_n_phase1_slowWheel_Speed, lr_n_phase1_fastWheel_Speed);
-					}
-					
-					
-					if (time - autoStart < raiseTime) {
-						elevatorMotor.set(raiseSpeed);
-					} else {
-						elevatorMotor.set(0);
-					}
-				} else if (time - autoStart - lr_n_phase1 < lr_n_phase2) {
-					if (robotPos == 2) {
-						drive.tankDrive(lr_n_phase1_fastWheel_Speed, lr_n_phase1_slowWheel_Speed);
-					} else {
-						drive.tankDrive(lr_n_phase1_slowWheel_Speed, lr_n_phase1_fastWheel_Speed);
-					}
-
-				} else if (time - autoStart - lr_n_phase1 - lr_n_phase2 < ejectTime) {
-					drive.tankDrive(0, 0);
-					intake.setIntakeSpeed(-shootSpeed);
-				} else {
-					intake.setIntakeSpeed(0);
-				}
-			}
-			break;
-
+		} else {
+			if (autoTimer.get() < 2-.3) {
+				drive.tankDrive(-.8, -.75);
+			} else
+				drive.tankDrive(0, 0);
 		}
 
 	}
 
 	@Override
 	public void teleopInit() {
+		fdisable = true;
+		// intake.drop = false;
+		// intake.dropped_time = -1;
 		Drive drive_command = new Drive();
 		drive_command.start();
+
 		Drive.slow = false;
 	}
 
 	/**
 	 * This function is called periodically during operator control
 	 */
-	@Override
+
+	boolean pressed9 = false, on9 = false;
+
 	public void teleopPeriodic() {
 		arduino1.set(Robot.oi.elevatorStick.getRawButton(1));
 		arduino2.set(Robot.oi.elevatorStick.getRawButton(3));
+
+		if (Robot.oi.driverStick.getRawButton(9) && !pressed9) {
+			pressed9 = true;
+			on9 = !on9;
+		} else {
+			pressed9 = false;
+		}
+
+		arduino3.set(false);
+		arduino4.set(on9);
 
 		Scheduler.getInstance().run();
 	}
