@@ -47,13 +47,15 @@ public class Intake extends Subsystem {
 		SmartDashboard.putBoolean("drop", drop);
 
 		/*
-		 * if (curr_time - dropped_time > Constants.m_IntakeFullDropTime && dropped_time
-		 * != -1) Robot.m_intakeDropperMotor.set(0); else { updateButtons();
+		 * if (curr_time - dropped_time > Constants.m_IntakeFullDropTime &&
+		 * dropped_time != -1) Robot.m_intakeDropperMotor.set(0); else {
+		 * updateButtons();
 		 * 
-		 * if (dropped_time == -1 && drop) dropped_time = System.currentTimeMillis();
+		 * if (dropped_time == -1 && drop) dropped_time =
+		 * System.currentTimeMillis();
 		 * 
-		 * SmartDashboard.putString("dropping", "yes" + (curr_time - dropped_time)); if
-		 * (drop) Robot.m_intakeDropperMotor.set(-0.8); else
+		 * SmartDashboard.putString("dropping", "yes" + (curr_time -
+		 * dropped_time)); if (drop) Robot.m_intakeDropperMotor.set(-0.8); else
 		 * Robot.m_intakeDropperMotor.set(0); }
 		 */
 
@@ -63,9 +65,8 @@ public class Intake extends Subsystem {
 			Robot.m_intakeDropperMotor.set(-0.8);
 		} else if (left) {
 			Robot.m_intakeDropperMotor.set(0.8);
-		}else
+		} else
 			Robot.m_intakeDropperMotor.set(0);
-			
 
 		drop = drop || left || right;
 
