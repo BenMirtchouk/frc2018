@@ -1,6 +1,7 @@
 
 package org.usfirst.frc.team6203.robot;
 
+import org.usfirst.frc.team6203.robot.commands.AutoRoutine;
 import org.usfirst.frc.team6203.robot.commands.Drive;
 import org.usfirst.frc.team6203.robot.subsystems.ADIS16448_IMU;
 import org.usfirst.frc.team6203.robot.subsystems.Chassis;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Victor;
+import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
@@ -61,8 +63,11 @@ public class Robot extends IterativeRobot {
 	// public static Ultrasonic ultrasonic;
 
 	int robotPos;
-	SendableChooser<Integer> chooser;
 	int switchPos;
+	
+	Command autonomousCommand;
+	SendableChooser<Integer> chooser;
+
 
 	/**
 	 * This function is run when the robot is first started up and should be used
@@ -161,20 +166,15 @@ public class Robot extends IterativeRobot {
 	 * chooser code above (like the commented example) or additional comparisons to
 	 * the switch structure below with additional strings & commands.
 	 */
-	double autoStart;
-	Timer autoTimer;
 
-	boolean first;
 
 	public void autonomousInit() {
 
 		arduino3.set(true);
 		arduino4.set(true);
-		// robotPos = chooser.getSelected();
 
-		// Read location from DS
-		// robotPos = DriverStation.getInstance().getLocation() - 1;
 		robotPos = 2;
+		
 		double start = System.currentTimeMillis();
 
 		String gameData;
@@ -187,54 +187,17 @@ public class Robot extends IterativeRobot {
 			gameData = "L welp lets take a guess fellas";
 
 		switchPos = gameData.charAt(0) == 'L' ? 2 : 0;
-		autoStart = System.currentTimeMillis();
 
-		autoTimer = new Timer();
-		System.out.println("switchPos: " + switchPos);
-		System.out.println("robotPos: " + robotPos);
-		first = true;
+		autonomousCommand = new AutoRoutine(robotPos, switchPos);
+		
+		autonomousCommand.start();
+			
 	}
 
 	public void autonomousPeriodic() {
 		arduino3.set(true);
 		arduino4.set(true);
-
-		if (first) {
-			autoTimer.start();
-			first = false;
-		}
-		
-		if (switchPos == robotPos) { // switch is on the same side as the robot
-			if (autoTimer.get() < 2-.3) {
-
-				if (autoTimer.get() < .5) {
-					intake.setIntakeSpeed(.5);
-				} else {
-					intake.setIntakeSpeed(0);
-				}
-
-				drive.tankDrive(-.8, -.75);
-			} else if (autoTimer.get() < 5-.3) {
-				elevatorMotor.set(.5);
-			} else if (autoTimer.get() < 6-.3) {
-				elevatorMotor.set(0);
-				drive.tankDrive(.8, -.8);
-			} else if (autoTimer.get() < 8-.3) {
-				drive.tankDrive(-.4, -.4);
-			} else if (autoTimer.get() < 9-.3) {
-				drive.tankDrive(0, 0);
-				intake.setIntakeSpeed(-.8);
-			} else {
-				intake.setIntakeSpeed(0);
-			}
-
-		} else {
-			if (autoTimer.get() < 2-.3) {
-				drive.tankDrive(-.8, -.75);
-			} else
-				drive.tankDrive(0, 0);
-		}
-
+		Scheduler.getInstance().run();
 	}
 
 	@Override
