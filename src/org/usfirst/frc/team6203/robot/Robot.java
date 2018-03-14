@@ -170,6 +170,10 @@ public class Robot extends IterativeRobot {
 	 * to the switch structure below with additional strings & commands.
 	 */
 
+	boolean firstAuto;
+	Timer autoTimer;
+	int phase;
+
 	public void autonomousInit() {
 		imu.calibrate();
 
@@ -195,11 +199,70 @@ public class Robot extends IterativeRobot {
 
 		autonomousCommand.start();
 
+		autoTimer = new Timer();
+		firstAuto = true;
+		phase = 0;
 	}
 
 	public void autonomousPeriodic() {
 		arduino3.set(true);
 		arduino4.set(true);
+
+		if (firstAuto) {
+			autoTimer.start();
+			firstAuto = false;
+		}
+
+		switch (phase) {
+		case 0:
+			if (autoTimer.get() < 5)
+				Drive.driveStraight(0.8);
+			else {
+				autoTimer.start();
+				phase++;
+			}
+			break;
+		case 1:
+			Drive.stop();
+			if (autoTimer.get() < 3)
+				elevatorMotor.set(.5);
+			else {
+				autoTimer.start();
+				phase++;
+			}
+			break;
+		case 2:
+			elevatorMotor.set(0);
+			if (Robot.imu.getAngleZ() < 90)
+				drive.arcadeDrive(.5, -.5);
+			else {
+				autoTimer.start();
+				phase++;
+			}
+			break;
+		case 3:
+			if (autoTimer.get() < .5)
+				Drive.driveStraight(.4);
+			else {
+				autoTimer.start();
+				phase++;
+			}
+			break;
+		case 4:
+			Drive.stop();
+			if (autoTimer.get() < .5)
+				intake.setIntakeSpeed(-.8);
+			else {
+				autoTimer.start();
+				phase++;
+			}
+			break;
+		case 5:
+			intake.setIntakeSpeed(0);
+			break;
+
+		}
+
 		Scheduler.getInstance().run();
 	}
 
