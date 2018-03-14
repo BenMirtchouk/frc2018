@@ -64,10 +64,9 @@ public class Robot extends IterativeRobot {
 
 	int robotPos;
 	int switchPos;
-	
+
 	Command autonomousCommand;
 	SendableChooser<Integer> chooser;
-
 
 	/**
 	 * This function is run when the robot is first started up and should be used
@@ -84,11 +83,15 @@ public class Robot extends IterativeRobot {
 		leftBackMotor = new Victor(RobotMap.leftMotorB);
 		rightFrontMotor = new Victor(RobotMap.rightMotorF);
 		rightBackMotor = new Victor(RobotMap.rightMotorB);
+		leftFrontMotor.setInverted(true);
+		leftBackMotor.setInverted(true);
+		rightFrontMotor.setInverted(true);
+		rightBackMotor.setInverted(true);
 
 		m_left = new SpeedControllerGroup(leftFrontMotor, leftBackMotor);
 		m_right = new SpeedControllerGroup(rightFrontMotor, rightBackMotor);
 
-		drive = new DifferentialDrive(m_left, m_right);
+		drive = new DifferentialDrive(m_right, m_left);
 		chassis = new Chassis();
 
 		// intake
@@ -157,16 +160,15 @@ public class Robot extends IterativeRobot {
 
 	/**
 	 * This autonomous (along with the chooser code above) shows how to select
-	 * between different autonomous modes using the dashboard. The sendable chooser
-	 * code works with the Java SmartDashboard. If you prefer the LabVIEW Dashboard,
-	 * remove all of the chooser code and uncomment the getString code to get the
-	 * auto name from the text box below the Gyro
+	 * between different autonomous modes using the dashboard. The sendable
+	 * chooser code works with the Java SmartDashboard. If you prefer the LabVIEW
+	 * Dashboard, remove all of the chooser code and uncomment the getString code
+	 * to get the auto name from the text box below the Gyro
 	 *
 	 * You can add additional auto modes by adding additional commands to the
-	 * chooser code above (like the commented example) or additional comparisons to
-	 * the switch structure below with additional strings & commands.
+	 * chooser code above (like the commented example) or additional comparisons
+	 * to the switch structure below with additional strings & commands.
 	 */
-
 
 	public void autonomousInit() {
 
@@ -174,14 +176,14 @@ public class Robot extends IterativeRobot {
 		arduino4.set(true);
 
 		robotPos = 2;
-		
+
 		double start = System.currentTimeMillis();
 
 		String gameData;
 		do
 			gameData = DriverStation.getInstance().getGameSpecificMessage();
 		while (gameData.length() == 0 && System.currentTimeMillis() - start < 2000); // keep going until we get data or
-																						// give up at 2 sec
+		// give up at 2 sec
 
 		if (gameData.length() == 0)
 			gameData = "L welp lets take a guess fellas";
@@ -189,9 +191,9 @@ public class Robot extends IterativeRobot {
 		switchPos = gameData.charAt(0) == 'L' ? 2 : 0;
 
 		autonomousCommand = new AutoRoutine(robotPos, switchPos);
-		
+
 		autonomousCommand.start();
-			
+
 	}
 
 	public void autonomousPeriodic() {
