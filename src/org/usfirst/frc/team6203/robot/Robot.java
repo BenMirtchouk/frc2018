@@ -171,6 +171,7 @@ public class Robot extends IterativeRobot {
 	 */
 
 	public void autonomousInit() {
+		imu.calibrate();
 
 		arduino3.set(true);
 		arduino4.set(true);
@@ -205,8 +206,6 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopInit() {
 		fdisable = true;
-		// intake.drop = false;
-		// intake.dropped_time = -1;
 		Drive drive_command = new Drive();
 		drive_command.start();
 

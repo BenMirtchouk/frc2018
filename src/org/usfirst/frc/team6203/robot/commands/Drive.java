@@ -28,9 +28,6 @@ public class Drive extends Command {
 		boolean slow_curr = Robot.oi.driverStick.getRawButton(RobotMap.slowspeed);
 		if (!slow_pressed && slow_curr)
 			slow = !slow;
-
-//		drop_intake = drop_intake || Robot.oi.elevatorStick.getRawButton(1);
-		drop_intake = Robot.oi.elevatorStick.getRawButton(1);
 		
 		slow_pressed = slow_curr;
 	}
