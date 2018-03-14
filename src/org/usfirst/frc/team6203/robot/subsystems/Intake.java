@@ -5,6 +5,7 @@ import org.usfirst.frc.team6203.robot.Robot;
 import org.usfirst.frc.team6203.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -30,7 +31,7 @@ public class Intake extends Subsystem {
 	}
 
 	private void updateButtons() {
-		drop = drop || Robot.oi.elevatorStick.getRawButton(5);
+		drop = (drop || Robot.oi.elevatorStick.getRawButton(5)) && DriverStation.getInstance().getMatchTime() < 45;
 	}
 
 	public void setIntakeSpeed(double speed) {
