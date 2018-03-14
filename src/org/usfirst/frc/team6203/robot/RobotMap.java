@@ -27,8 +27,10 @@ public class RobotMap {
 	public static int controller2 = 1;
 	public static int slowspeed = 2;
 	
-	public static int encoder_channelA = 0;
-	public static int encoder_channelB = 1;
+	public static int left_encoder_channelA = 0;
+	public static int left_encoder_channelB = 1;
+	public static int right_encoder_channelA = 2;
+	public static int right_encoder_channelB = 3;
 	public static int halleffect = 2;
 	
 	public static int ultrasonic1 = 3;
