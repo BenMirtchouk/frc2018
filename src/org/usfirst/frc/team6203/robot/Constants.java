@@ -5,6 +5,7 @@ public class Constants {
 	public static final String IP = "10.62.3.52";
 	
 	//Chassis
+	public static final double kDistancePerPulse = Math.PI * 4;
 	
 	//Elevator
 	public static final double m_ElevatorMaxSpeed = 1.0;
