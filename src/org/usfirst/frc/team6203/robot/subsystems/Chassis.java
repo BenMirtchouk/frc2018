@@ -35,6 +35,12 @@ public class Chassis extends Subsystem {
 		Robot.drive.tankDrive(a*0.5, b*0.5);
 	}
 
+	public void straightDrive(double speed) {
+		double Kp = 0.03;
+		Robot.imu.reset();
+		Robot.drive.tankDrive(speed - Kp*Robot.imu.getAngle(), speed);
+	}
+	
 	public void arcadeDrive() {
 		SmartDashboard.putString("type", "arcade");
 		
