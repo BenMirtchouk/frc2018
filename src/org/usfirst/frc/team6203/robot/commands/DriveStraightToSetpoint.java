@@ -9,10 +9,10 @@ import edu.wpi.first.wpilibj.command.Command;
  */
 public class DriveStraightToSetpoint extends Command {
 
-	int distance;
+	double distance;
 	double speed;
 	
-	public DriveStraightToSetpoint(int distance, double speed) {
+	public DriveStraightToSetpoint(double distance, double speed) {
 		this.distance = distance;
 		this.speed = speed;
 	}
