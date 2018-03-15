@@ -95,6 +95,22 @@ public class Elevator extends Subsystem {
 		Robot.elevatorMotor.set(x);
 	}
 
+	public void setElevator(double speed) {
+
+		if (b_top)
+			Robot.drive.setMaxOutput(Constants.m_DriveBaseSlowOutput);
+		else
+			Robot.drive.setMaxOutput(Constants.m_DriveBaseOutput);
+
+		if (b_bottom && speed < 0)
+			return;
+		if (b_top && speed > 0)
+			return;
+
+		Robot.elevatorMotor.set(speed);
+
+	}
+
 	private void publishValues() {
 		SmartDashboard.putBoolean("b_bottom", b_bottom);
 		SmartDashboard.putBoolean("b_switch", b_switch);

@@ -1,7 +1,7 @@
 
 package org.usfirst.frc.team6203.robot;
 
-import org.usfirst.frc.team6203.robot.commands.AutoRoutine;
+import org.usfirst.frc.team6203.robot.commands.TimedAutoRoutine;
 import org.usfirst.frc.team6203.robot.commands.Drive;
 import org.usfirst.frc.team6203.robot.subsystems.ADIS16448_IMU;
 import org.usfirst.frc.team6203.robot.subsystems.Chassis;
@@ -207,7 +207,7 @@ public class Robot extends IterativeRobot {
 
 		switchPos = gameData.charAt(0) == 'L' ? 2 : 0;
 
-		autonomousCommand = new AutoRoutine(robotPos, switchPos);
+		autonomousCommand = new TimedAutoRoutine(robotPos, switchPos);
 		
 		autonomousCommand.start();
 			
