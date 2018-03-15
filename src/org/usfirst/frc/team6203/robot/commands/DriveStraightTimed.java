@@ -18,6 +18,7 @@ public class DriveStraightTimed extends TimedCommand {
 
     // Called just before this Command runs the first time
     protected void initialize() {
+    		Robot.imu.reset();
     }
 
     // Called repeatedly when this Command is scheduled to run
