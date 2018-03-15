@@ -10,7 +10,8 @@ import edu.wpi.first.wpilibj.command.TimedCommand;
 public class DriveStraightTimed extends TimedCommand {
 
 	double speed;
-	double Kp = 0.03;
+	final double Kp = 0.03;
+	final double tolerance = 0.5;
 
 	public DriveStraightTimed(double timeout, double s) {
 		super(timeout);
@@ -26,7 +27,7 @@ public class DriveStraightTimed extends TimedCommand {
 	protected void execute() {
 		// implement pid control
 		double t = Robot.imu.getAngle();
-		double c = Kp * (Math.abs(t) < 0.5 ? 0 : t);
+		double c = Kp * (Math.abs(t) < tolerance ? 0 : t);
 		Robot.drive.tankDrive(speed - c, speed);
 	}
 

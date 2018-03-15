@@ -59,11 +59,11 @@ public class Robot extends IterativeRobot {
 	public static DigitalInput DI_bottom, DI_switch, DI_scale, DI_top;
 	public static Elevator elevator;
 
-	 public static Encoder left_encoder;
-	 public static Encoder right_encoder;
-	 
-	 public static PIDController left_PID_controller;
-	 public static PIDController right_PID_controller;
+//	 public static Encoder left_encoder;
+//	 public static Encoder right_encoder;
+//	 
+//	 public static PIDController left_PID_controller;
+//	 public static PIDController right_PID_controller;
 
 	// public static Ultrasonic ultrasonic;
 
@@ -96,19 +96,19 @@ public class Robot extends IterativeRobot {
 		drive = new DifferentialDrive(m_left, m_right);
 		chassis = new Chassis();
 		
-		//
-		left_encoder = new Encoder(RobotMap.left_encoder_channelA, RobotMap.left_encoder_channelB);
-		right_encoder = new Encoder(RobotMap.right_encoder_channelA, RobotMap.right_encoder_channelB);
+		//Encoders
+		//left_encoder = new Encoder(RobotMap.left_encoder_channelA, RobotMap.left_encoder_channelB);
+		//right_encoder = new Encoder(RobotMap.right_encoder_channelA, RobotMap.right_encoder_channelB);
 		
-		left_encoder.setDistancePerPulse(Constants.kDistancePerPulse);
-		right_encoder.setDistancePerPulse(Constants.kDistancePerPulse);
+		//left_encoder.setDistancePerPulse(Constants.kDistancePerPulse);
+		//right_encoder.setDistancePerPulse(Constants.kDistancePerPulse);
 		
 		//PIDControllers
-		left_PID_controller = new PIDController(0, 0, 0, left_encoder, m_left);
-		right_PID_controller = new PIDController(0, 0, 0, right_encoder, m_right);
+//		left_PID_controller = new PIDController(0, 0, 0, left_encoder, m_left);
+//		right_PID_controller = new PIDController(0, 0, 0, right_encoder, m_right);
 		
-		left_PID_controller.setAbsoluteTolerance(0.2);
-		right_PID_controller.setAbsoluteTolerance(0.2);
+//		left_PID_controller.setAbsoluteTolerance(0.2);
+//		right_PID_controller.setAbsoluteTolerance(0.2);
 
 		// intake
 		m_intakeMotorM = new Victor(RobotMap.intakeMotorM);
