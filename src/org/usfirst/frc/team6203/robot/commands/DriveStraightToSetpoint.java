@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj.command.Command;
  *
  */
 public class DriveStraightToSetpoint extends Command {
+	
+	//This class can only be used if we have two encoders
 
 	double distance;
 	double speed;
