@@ -8,31 +8,35 @@ import edu.wpi.first.wpilibj.command.TimedCommand;
  *
  */
 public class DriveStraightTimed extends TimedCommand {
-	
+
 	double speed;
+	double Kp = 0.03;
 
-    public DriveStraightTimed(double timeout, double s) {
-        super(timeout);
-        speed = s;
-    }
+	public DriveStraightTimed(double timeout, double s) {
+		super(timeout);
+		speed = s;
+	}
 
-    // Called just before this Command runs the first time
-    protected void initialize() {
-    		Robot.imu.reset();
-    }
+	// Called just before this Command runs the first time
+	protected void initialize() {
+		Robot.imu.reset();
+	}
 
-    // Called repeatedly when this Command is scheduled to run
-    protected void execute() {
-    	Robot.drive.tankDrive(speed, speed);
-    }
+	// Called repeatedly when this Command is scheduled to run
+	protected void execute() {
+		// implement pid control
+		double t = Robot.imu.getAngle();
+		double c = Kp * (Math.abs(t) < 0.5 ? 0 : t);
+		Robot.drive.tankDrive(speed - c, speed);
+	}
 
-    // Called once after timeout
-    protected void end() {
-    	Robot.drive.tankDrive(0, 0);
-    }
+	// Called once after timeout
+	protected void end() {
+		Robot.drive.tankDrive(0, 0);
+	}
 
-    // Called when another command which requires one or more of the same
-    // subsystems is scheduled to run
-    protected void interrupted() {
-    }
+	// Called when another command which requires one or more of the same
+	// subsystems is scheduled to run
+	protected void interrupted() {
+	}
 }
