@@ -189,8 +189,6 @@ public class Robot extends IterativeRobot {
 
 		arduino3.set(true);
 		arduino4.set(true);
-
-		robotPos = 2;
 		
 		double start = System.currentTimeMillis();
 
@@ -203,11 +201,13 @@ public class Robot extends IterativeRobot {
 		if (gameData.length() == 0)
 			gameData = "L welp lets take a guess fellas";
 
+		//robotPos = 2;
+		robotPos = chooser.getSelected();
 		switchPos = gameData.charAt(0) == 'L' ? 2 : 0;
 		
 		Robot.imu.calibrate();
 
-//		autonomousCommand = new TimedAutoRoutine(robotPos, switchPos);
+//		autonomousCommand = new TimedAutoRoutine2(robotPos, switchPos);
 		autonomousCommand = new AutoTest();
 		
 		autonomousCommand.start();
