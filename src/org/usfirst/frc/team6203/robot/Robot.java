@@ -1,7 +1,7 @@
 
 package org.usfirst.frc.team6203.robot;
 
-import org.usfirst.frc.team6203.robot.commands.TimedAutoRoutine;
+import org.usfirst.frc.team6203.robot.commands.AutoTest;
 import org.usfirst.frc.team6203.robot.commands.Drive;
 import org.usfirst.frc.team6203.robot.subsystems.ADIS16448_IMU;
 import org.usfirst.frc.team6203.robot.subsystems.Chassis;
@@ -12,9 +12,7 @@ import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.Victor;
@@ -206,8 +204,11 @@ public class Robot extends IterativeRobot {
 			gameData = "L welp lets take a guess fellas";
 
 		switchPos = gameData.charAt(0) == 'L' ? 2 : 0;
+		
+		Robot.imu.calibrate();
 
-		autonomousCommand = new TimedAutoRoutine(robotPos, switchPos);
+//		autonomousCommand = new TimedAutoRoutine(robotPos, switchPos);
+		autonomousCommand = new AutoTest();
 		
 		autonomousCommand.start();
 			

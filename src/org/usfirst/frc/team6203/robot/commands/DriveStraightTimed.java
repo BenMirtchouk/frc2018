@@ -3,6 +3,7 @@ package org.usfirst.frc.team6203.robot.commands;
 import org.usfirst.frc.team6203.robot.Robot;
 
 import edu.wpi.first.wpilibj.command.TimedCommand;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
@@ -26,9 +27,13 @@ public class DriveStraightTimed extends TimedCommand {
 	// Called repeatedly when this Command is scheduled to run
 	protected void execute() {
 		// implement pid control
-		double t = Robot.imu.getAngle();
-		double c = Kp * (Math.abs(t) < tolerance ? 0 : t);
-		Robot.drive.tankDrive(speed - c, speed);
+		double theta = 0 - Robot.imu.getAngleZ();
+		double correction = Kp * (Math.abs(theta) < tolerance ? 0 : theta);
+		SmartDashboard.putNumber("angle_correction", correction);
+		if (theta < 0)
+			Robot.drive.tankDrive(speed + correction, speed);
+		else if (theta > 0)
+			Robot.drive.tankDrive(speed, speed + correction);
 	}
 
 	// Called once after timeout

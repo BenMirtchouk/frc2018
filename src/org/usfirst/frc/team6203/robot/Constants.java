@@ -9,7 +9,7 @@ public class Constants {
 	public static final double kDistancePerPulse = Math.PI * 4;
 
 	public static final double m_DriveBaseOutput = 1.0;
-	public static final double m_DriveBaseSlowOutput = 0.6;
+	public static final double m_DriveBaseSlowOutput = 0.5;
 
 	
 	//Elevator
